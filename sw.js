@@ -1,8 +1,9 @@
 const staticCache = 'static-cache';
 const assets = [
     '/',
-    '/index.html',
+    '/index.html', 
     '/js/app.js',
+    '/js/ui.js',
     '/js/materialize.min.js',
     '/css/materialize.min.css',
     'https://fonts.googleapis.com/icon?family=Material+Icons'
@@ -17,11 +18,16 @@ self.addEventListener('install', e => {
     })
 })
 
-// activate process
+// activate 
 self.addEventListener('activate', e => {
     console.log('sw is activated')
 })
 
-self.addEventListener('fetch', e=>{
-    console.log('sw fetch event', e)
+self.addEventListener('fetch', e=> {
+    e.respondWith(
+        caches.match(e.request).then(res=>{
+            return res||fetch(e.request)
+        })
+    )
 })
+
