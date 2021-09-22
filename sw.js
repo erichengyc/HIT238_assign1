@@ -1,4 +1,6 @@
 const staticCache = 'static-cache';
+const dynamicCache = 'dynamic-cache';
+
 const assets = [
     '/',
     '/index.html', 
@@ -25,8 +27,13 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e=> {
     e.respondWith(
-        caches.match(e.request).then(res=>{
-            return res||fetch(e.request)
+        caches.match(e.request).then(staticRes=>{
+            return staticRes || fetch(e.request).then(dynamicRes=>{
+                return caches.open(dynamicCache).then(cache=>{
+                    cache.put(e.request.url, dynamicRes.clone())
+                    return dynamicRes
+                })
+            })
         })
     )
 })
