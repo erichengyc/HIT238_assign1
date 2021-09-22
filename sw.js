@@ -13,6 +13,19 @@ const assets = [
 
 ]
 
+const limitNumCache = (cacheName, num)=>{
+    caches.open(cacheName).then(cache => {
+        cache.keys().then(keys =>{
+            if (keys.length > num) {
+                cache.delete(keys[0]).then(limitNumCache
+                (cacheName, num))
+            }
+        })
+    })
+}
+
+
+
 // install process
 self.addEventListener('install', e => {
     e.wa
@@ -32,6 +45,7 @@ self.addEventListener('fetch', e=> {
             return staticRes || fetch(e.request).then(dynamicRes=>{
                 return caches.open(dynamicCache).then(cache=>{
                     cache.put(e.request.url, dynamicRes.clone())
+                    limitNumCache(dynamicCache, 2)
                     return dynamicRes
                 })
             })
